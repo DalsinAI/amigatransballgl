@@ -455,13 +455,23 @@ def _header(m: Member, method: bytes, packed_len: int, crc: int) -> bytes:
     return bytes([len(base), sum(base) & 0xFF]) + bytes(base)
 
 
+# Already compressed: lh5 cannot shrink these, so "auto" stores them without
+# trying (packing tens of MB of music and pictures in Python is minutes).
+STORED_SUFFIXES = (".png", ".jpg", ".jpeg", ".gif", ".webp", ".ogg", ".oga", ".ogv",
+                   ".opus", ".mp3", ".flac", ".mp4", ".webm", ".zip", ".gz", ".bz2",
+                   ".xz", ".7z", ".lha", ".lzh")
+
+
 def pack(members: list[Member], method: str = "auto") -> bytes:
-    """An LhA archive of `members`. method: "auto" (lh5 when it helps), "lh5" or "lh0"."""
+    """An LhA archive of `members`. method: "auto" (lh5 when it helps; members
+    named in STORED_SUFFIXES stored as they are), "lh5" or "lh0"."""
     out = bytearray()
     for m in members:
         crc = crc16(m.data)
         packed, meth = m.data, b"-lh0-"
-        if method in ("auto", "lh5") and m.data:
+        if method == "auto" and m.path.lower().endswith(STORED_SUFFIXES):
+            pass
+        elif method in ("auto", "lh5") and m.data:
             c = lh5_compress(m.data)
             if method == "lh5" or len(c) < len(m.data):
                 packed, meth = c, b"-lh5-"

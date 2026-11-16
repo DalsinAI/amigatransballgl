@@ -68,4 +68,5 @@ if [ -n "${GLM:-}" ] && [ -n "${FONTS:-}" ] && command -v Xvfb > /dev/null && pk
 else
     echo "play: SKIP (set GLM and FONTS; needs Xvfb, ImageMagick, SDL 2, GL and zlib development files)"
 fi
+python3 -I "$HERE/test_lha.py"
 echo PASS
