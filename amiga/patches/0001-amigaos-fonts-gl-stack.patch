@@ -1,0 +1,96 @@
+diff --git a/src/TGL.cpp b/src/TGL.cpp
+index 4bdbd95..5c11fac 100644
+--- a/src/TGL.cpp
++++ b/src/TGL.cpp
+@@ -103,7 +103,7 @@ int TGL::s_points_for_ship[N_SHIPS]={0,0,0,5,150,25,75,125,40,55,15,100};
+ 
+ TGL::TGL(char *map, int ship,int initial_fuel,int sfx_volume, int music_volume, GLTManager *GLTM)
+ {	
+-	m_font=TTF_OpenFont("fonts/Krungthep.ttf",12);
++	m_font=TTF_OpenFont(TGL_FONT_TITLE,12);
+ 
+ 	m_sfx_volume=sfx_volume;
+ 	m_music_volume=music_volume;
+@@ -169,7 +169,7 @@ TGL::TGL(char *map, int ship,int initial_fuel,int sfx_volume, int music_volume,
+ 
+ TGL::TGL(TGLreplay *replay,int sfx_volume, int music_volume, GLTManager *GLTM)
+ {
+-    m_font=TTF_OpenFont("fonts/Krungthep.ttf",12);
++    m_font=TTF_OpenFont(TGL_FONT_TITLE,12);
+     
+     m_sfx_volume=sfx_volume;
+     m_music_volume=music_volume;
+diff --git a/src/TGLapp.cpp b/src/TGLapp.cpp
+index 3428667..282b386 100644
+--- a/src/TGLapp.cpp
++++ b/src/TGLapp.cpp
+@@ -113,9 +113,9 @@ TGLapp::TGLapp()
+ #endif
+ #endif
+ 
+-	m_font32=TTF_OpenFont("fonts/Krungthep.ttf",28);
+-	m_font16=TTF_OpenFont("fonts/Krungthep.ttf",14);
+-	m_ifont32=TTF_OpenFont("fonts/impact.ttf",32);
++	m_font32=TTF_OpenFont(TGL_FONT_TITLE,28);
++	m_font16=TTF_OpenFont(TGL_FONT_TITLE,14);
++	m_ifont32=TTF_OpenFont(TGL_FONT_IMPACT,32);
+ 
+ 	m_current_levelpack=0;
+ 	m_selected_level=0;
+diff --git a/src/TGLconstants.h b/src/TGLconstants.h
+index 00c3fe6..72984f7 100644
+--- a/src/TGLconstants.h
++++ b/src/TGLconstants.h
+@@ -51,6 +51,16 @@
+ #define MIN_ZOOM    0.5f
+ #define MAX_ZOOM    2.0f
+ 
++/* The game's fonts. Upstream ships two that may not be passed on
++ * (Krungthep and Impact); AmigaOS builds use free (OFL) ones. */
++#ifdef __amigaos__
++#define TGL_FONT_TITLE  "fonts/RussoOne-Regular.ttf"
++#define TGL_FONT_IMPACT "fonts/Anton-Regular.ttf"
++#else
++#define TGL_FONT_TITLE  "fonts/Krungthep.ttf"
++#define TGL_FONT_IMPACT "fonts/impact.ttf"
++#endif
++
+ #define DEFAULT_SCREEN_X    640
+ #define DEFAULT_SCREEN_Y    480
+ 
+diff --git a/src/auxiliar/compression.cpp b/src/auxiliar/compression.cpp
+index 6814adc..c0e2ef9 100644
+--- a/src/auxiliar/compression.cpp
++++ b/src/auxiliar/compression.cpp
+@@ -5,7 +5,13 @@
+ 
+ #include"compression.h"
+ 
++#ifdef __amigaos__
++/* two buffers of CHUNK on the stack: 256 KB each is more than an Amiga
++   program's stack; the stream is the same whatever the chunk size */
++#define CHUNK 16384
++#else
+ #define CHUNK 262144
++#endif
+ 
+ bool compress(char *source,int len,FILE *dest)
+ {
+diff --git a/src/main.cpp b/src/main.cpp
+index 375140d..64dfae6 100644
+--- a/src/main.cpp
++++ b/src/main.cpp
+@@ -151,6 +151,13 @@ void init_video_mode()
+ {
+     output_debug_message("Initializing video mode\n");
+     
++#ifdef __amigaos__
++    // The shaders are GLSL 1.10 (no #version) with vertex arrays:
++    // GFOpenGPU gives a 4.3 core context unless asked for compatibility.
++    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
++    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
++    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
++#endif
+     appwindow = SDL_CreateWindow(application_name,
+                                  SDL_WINDOWPOS_UNDEFINED,
+                                  SDL_WINDOWPOS_UNDEFINED,

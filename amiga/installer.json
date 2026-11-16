@@ -1,0 +1,15 @@
+{
+  "name": "Transball GL",
+  "version": "1.0-gfos1",
+  "drawer": "TransballGL",
+  "program": "TransballGL",
+  "cpu": "68040",
+  "fpu": true,
+  "space": 22000000,
+  "modules": ["SDL2.module", "SDL2_image.module", "SDL2_mixer.module"],
+  "libraries": [],
+  "keep": ["players", "replays", "mymaps"],
+  "parent": "Work:Games",
+  "badge": "icons/art/transballgl.png",
+  "script": "Install-TransballGL"
+}

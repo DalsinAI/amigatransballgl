@@ -1,0 +1,27 @@
+Transball GL: licences
+======================
+
+The game: Transball GL, Copyright Santiago Ontanon Villar
+(https://github.com/santiontanon/transballgl).
+
+- Transball GL, the program and its graphics, sounds, levels and
+  tutorials (graphics, sound, maps, mymaps, tutorials), is under the GNU
+  General Public License version 3 (GPL-3.0.txt; README-TransballGL.txt).
+- The two fonts in the fonts drawer stand in for the ones upstream ships
+  (Krungthep and Impact, which are not free to give away): Russo One
+  (Jovanny Lemonad) for the titles and Anton (Vernon Adams) for the rest,
+  both under the SIL Open Font License 1.1 (OFL-RussoOne.txt,
+  OFL-Anton.txt). They are Google Fonts' own copies.
+- GLM, the maths library the game is built with (header only), is under
+  the MIT licence (https://github.com/g-truc/glm).
+- SDL 2, SDL2_image and SDL2_mixer are GFOpenUp's (LIBS:GFOpenGPU/), and so
+  is OpenGL; SDL2_ttf and FreeType are linked into the program from
+  GFOpenUp's SDL 2 kit (zlib licence, FreeType licence). Replays are
+  packed by z.library (GFOpenZlib, LIBS:), whose headers (MIT) the port
+  carries in amiga/sdk.
+- The Amiga port's own files (amiga/, AMIGA_PORT.md, package/, tools/,
+  tests/) are GPL-3.0-or-later, like the game; the GlowIcon art is The
+  AmiCradle Team's own. The source of all of it is at
+  https://github.com/DalsinAI/amigatransballgl.
+
+The game's data is upstream's own, unchanged.

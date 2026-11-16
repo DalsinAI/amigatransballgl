@@ -1,0 +1,22 @@
+Transball GL: the keys
+======================
+
+  Q              thrust (it uses fuel: the gauge is at the top left)
+  O, P           turn left, turn right
+  Space          fire
+  Return         the tractor beam: pick up the sphere
+  A              the ship's special (shield, side thrusters, ...)
+  Esc            the menu: pause, options, leave the level
+  F12            quit
+
+Every game key can be changed in Options, from the main menu or the game's
+menu; the window or a full screen is chosen there too.
+
+The aim: find the energy sphere, take it with the tractor beam and carry
+it to the top of the level. Touch anything and the ship is lost.
+
+In the menus the mouse picks; in the level editor the cursor keys or the
+screen's edges move the map, Page Up and Page Down zoom.
+
+Player profiles, high scores and the times are kept in the drawer's
+players drawer, your replays in replays and your own levels in mymaps.

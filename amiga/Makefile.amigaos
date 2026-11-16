@@ -1,0 +1,96 @@
+# Transball GL for GFOS (AmigaOS 3.2 with GFOpenUp), 68040/68060 + FPU, on
+# GFOpenUp's SDL 2 and OpenGL (LIBS:GFOpenGPU/SDL2.module, SDL2_image.module,
+# SDL2_mixer.module; GL through GFOpenGPU). SDL2_ttf and FreeType are linked
+# in from the kit; replays are deflated by z.library (GFOpenZlib).
+#
+#   make -f amiga/Makefile.amigaos -j4 TGL=/path/to/transballgl GLM=/path/to/glm [STOVE=...]
+#
+# TGL is upstream Transball GL at the commit package/transballgl.lock names,
+# with amiga/patches applied; GLM is the GLM headers (g-truc/glm) at the tag
+# the lock names; FONTS holds the two OFL fonts the lock names, which stand
+# in for upstream's Krungthep and Impact (those are not free to give away).
+# package/build-amiga.sh fetches all three.
+#
+# Output: build/amigaos/TransballGL/ (the drawer: TransballGL, graphics/,
+# sound/, maps/, mymaps/, tutorials/, fonts/, players/, replays/, ReadMe,
+# Controls, the licences, with GlowIcons), build/amigaos/TransballGL.info
+# and Install-TransballGL beside them.
+
+TGL     ?= ../transballgl
+GLM     ?= ../glm
+FONTS   ?= ../fonts
+STOVE   ?= $(HOME)/AmiCradle/stoves/os32-gcc16-open6
+PREFIX  ?= $(STOVE)/prefix
+SDL2KIT ?= $(PREFIX)/m68k-amigaos
+CC      = $(PREFIX)/bin/m68k-amigaos-gcc
+CXX     = $(PREFIX)/bin/m68k-amigaos-g++
+STRIP   = $(PREFIX)/bin/m68k-amigaos-strip
+# hard float: GFOpenGPU's SDL 2 kit and libGL are built -m68881
+CPU     ?= -m68040 -m68881
+# -fno-tree-loop-distribute-patterns: GCC 16's loop miscompile (the kit's
+# sdl2-config gives it for GCC 16 too).
+OPT     ?= -O2 -fomit-frame-pointer -fno-tree-loop-distribute-patterns -fno-math-errno
+
+SRCDIRS = src src/auxiliar src/interface src/objects src/states
+DEFS    = -D__amigaos__ -DGLM_FORCE_RADIANS
+# amiga/ first: its GL/glew.h, GL/glu.h and zlib.h stand in for GLEW, GLU
+# and zlib
+INC     = -Iamiga -Iamiga/sdk $(addprefix -I$(TGL)/,$(SRCDIRS)) -I$(GLM) -I$(GLM)/glm -I$(SDL2KIT)/include/SDL2 -I$(SDL2KIT)/include
+CXXFLAGS = -noixemul $(OPT) $(CPU) -std=gnu++11 -w $(DEFS) $(INC)
+CFLAGS  = -noixemul $(OPT) $(CPU) -std=gnu99 -Wall $(DEFS) -Iamiga -Iamiga/sdk
+LDFLAGS = -noixemul $(CPU)
+# libstdc++ takes its locks from the kit's pthreads: named after it
+LIBS    = -L$(SDL2KIT)/lib -L$(SDL2KIT)/port-deps/lib -lSDL2_ttf -lfreetype -lSDL2_image -lSDL2_mixer \
+          -lSDL2 -lGL -lm -lstdc++ -lpthread
+
+BUILD   = build/amigaos
+OBJDIR  = $(BUILD)/obj
+OUT     = $(BUILD)/TransballGL
+PROG    = TransballGL
+
+SRCS    = $(foreach d,$(SRCDIRS),$(wildcard $(TGL)/$(d)/*.cpp))
+OBJS    = $(patsubst $(TGL)/%.cpp,$(OBJDIR)/%.o,$(SRCS)) \
+          $(OBJDIR)/amiga/tgl_zlib.o $(OBJDIR)/amiga/amiga_start.o
+DATA    = graphics sound maps mymaps tutorials
+EMPTY   = players other-players replays
+
+all: $(OUT)/$(PROG) package
+
+$(BUILD)/$(PROG).debug: $(OBJS)
+	@mkdir -p $(BUILD)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
+
+$(OUT)/$(PROG): $(BUILD)/$(PROG).debug
+	@mkdir -p $(OUT)
+	$(STRIP) -o $@ $<
+
+package: $(OUT)/$(PROG) AMIGA_PORT.md amiga/Licences.txt amiga/Controls
+	for d in $(DATA); do rm -rf $(OUT)/$$d; cp -R $(TGL)/$$d $(OUT)/$$d; done
+	for d in $(EMPTY); do mkdir -p $(OUT)/$$d; done
+	rm -rf $(OUT)/fonts; mkdir -p $(OUT)/fonts
+	cp $(FONTS)/Anton-Regular.ttf $(FONTS)/RussoOne-Regular.ttf $(OUT)/fonts/
+	cp $(FONTS)/OFL-Anton.txt $(FONTS)/OFL-RussoOne.txt $(OUT)/
+	cp amiga/Controls $(OUT)/Controls
+	cp AMIGA_PORT.md $(OUT)/ReadMe
+	cp $(TGL)/LICENSE $(OUT)/GPL-3.0.txt
+	cp $(TGL)/README.md $(OUT)/README-TransballGL.txt
+	cp amiga/Licences.txt $(OUT)/Licences.txt
+	cp amiga/icons/TransballGL.info amiga/icons/ReadMe.info $(OUT)/
+	for f in GPL-3.0.txt OFL-Anton.txt OFL-RussoOne.txt README-TransballGL.txt Licences.txt Controls; do \
+	    cp amiga/icons/ReadMe.info $(OUT)/$$f.info; done
+	for d in $(DATA) $(EMPTY) fonts; do cp amiga/icons/Data.info $(OUT)/$$d.info; done
+	cp amiga/icons/TransballGL-drawer.info $(BUILD)/TransballGL.info
+	cp amiga/Install-TransballGL amiga/Install-TransballGL.info $(BUILD)/
+
+$(OBJDIR)/%.o: $(TGL)/%.cpp amiga/GL/glew.h amiga/zlib.h
+	@mkdir -p $(dir $@)
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+$(OBJDIR)/amiga/%.o: amiga/%.c amiga/zlib.h
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+clean:
+	rm -rf $(BUILD)
+
+.PHONY: all package clean

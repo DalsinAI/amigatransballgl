@@ -1,0 +1,19 @@
+# What package/build-amiga.sh fetches (none of it is kept in this repository).
+# Upstream Transball GL, Santiago Ontanon Villar's game, GPL-3.0.
+TGL_URL=https://github.com/santiontanon/transballgl
+TGL_COMMIT=066195e9e0d6a778a051f147f4c72ba76b9b7c46
+TGL_VERSION=1.0
+PORT_VERSION=1.0-gfos1
+# GLM, the header-only maths library the game is written against (MIT).
+GLM_URL=https://github.com/g-truc/glm
+GLM_COMMIT=bf71a834948186f4097caa076cd2663c69a10e1e
+GLM_VERSION=0.9.9.8
+# The two SIL OFL 1.1 fonts that stand in for upstream's Krungthep (titles)
+# and Impact, which are not free to give away: Google Fonts' own copies.
+FONTS_RAW=https://raw.githubusercontent.com/google/fonts
+FONTS_COMMIT=7af0d90b4d532ffa4b041937b560c6df4e7b1e95
+# path in google/fonts : name in the drawer : sha256
+FONTS_FILES="ofl/anton/Anton-Regular.ttf:Anton-Regular.ttf:a4ba3a92350ebb031da0cb47630ac49eb265082ca1bc0450442f4a83ab947cab
+ofl/anton/OFL.txt:OFL-Anton.txt:ee67e6ee22790b7929f1a3769ca2801d565c64b5a9096942c1adf5596de9c9e4
+ofl/russoone/RussoOne-Regular.ttf:RussoOne-Regular.ttf:bc0abcc660bd8b7ad3000ecb2898a27c58a29a50f7ec81652fa12e75148d09df
+ofl/russoone/OFL.txt:OFL-RussoOne.txt:3ac1301549523d9861fedca12871f24e575fbd26d520632fc00ba849b471d275"
