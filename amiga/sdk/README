@@ -1,0 +1,4 @@
+z.library's (GFOpenZlib's) C headers, copied unchanged from
+DalsinAI/amicradle-guest libraries/openzlib/sdk/Include_H at 987341216e:
+the stove's SDK has no copy yet. amiga/tgl_zlib.c calls the library
+through them.
